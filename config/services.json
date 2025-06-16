@@ -1,0 +1,38 @@
+{  "services": [
+    {
+      "id": "joeycadieux-website",
+      "name": "Joey Cadieux Portfolio",
+      "url": "https://joeycadieux.dev",
+      "description": "Personal portfolio and blog website",
+      "expectedStatus": 200
+    },
+    {
+      "id": "softwarefoundations-website",
+      "name": "Software Foundations",
+      "url": "https://softwarefoundations.cloud",
+      "description": "Software Foundations main website",
+      "expectedStatus": 200
+    }
+  ],
+  "notifications": {
+    "email": {
+      "enabled": false,
+      "recipients": []
+    },
+    "slack": {
+      "enabled": false,
+      "webhook": ""
+    },
+    "discord": {
+      "enabled": false,
+      "webhook": ""
+    }
+  },
+  "settings": {
+    "checkInterval": 300,
+    "timeout": 10000,
+    "retries": 3,
+    "degradedThreshold": 2000,
+    "downThreshold": 10000
+  }
+}

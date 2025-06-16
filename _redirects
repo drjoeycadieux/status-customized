@@ -1,0 +1,7 @@
+# Netlify redirects file
+
+# SPA fallback
+/*    /index.html   200
+
+# Ensure config files are accessible
+/config/*  /config/:splat  200
