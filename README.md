@@ -1,7 +1,7 @@
 # Service Status Dashboard
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/yourusername/status-page/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/yourusername/status-page/tree/main)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/your-site-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/website-stats/deploy-status)](https://app.netlify.com/sites/website-stats/deploys)
 
 A modern, responsive status page built with Vite and TypeScript that monitors service uptime and displays real-time status information with automated CI/CD monitoring.
 

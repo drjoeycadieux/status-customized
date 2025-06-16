@@ -54,7 +54,7 @@ GITHUB_TOKEN=your_github_personal_access_token
 3. Copy the token
 
 **Netlify Site ID:**
-1. Go to your Netlify site → Site settings → General
+1. Go to your Netlify site (website-stats) → Site settings → General
 2. Copy the "Site ID"
 
 **GitHub Token:**

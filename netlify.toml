@@ -31,9 +31,9 @@
   [headers.values]
     Cache-Control = "public, max-age=300"
 
-# Custom domain configuration (optional)
+# Custom domain configuration (update with your actual domain)
 # [[redirects]]
-#   from = "https://status-old-domain.netlify.app/*"
+#   from = "https://website-stats.netlify.app/*"
 #   to = "https://status.joeycadieux.dev/:splat"
 #   status = 301
 #   force = true

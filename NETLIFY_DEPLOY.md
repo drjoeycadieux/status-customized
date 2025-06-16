@@ -39,7 +39,7 @@
 ## 🌐 Custom Domain Setup
 
 ### Option 1: Netlify Subdomain
-Your site will be available at: `https://your-site-name.netlify.app`
+Your site is already available at: `https://website-stats.netlify.app`
 
 ### Option 2: Custom Domain (status.joeycadieux.dev)
 
@@ -48,10 +48,9 @@ Your site will be available at: `https://your-site-name.netlify.app`
    - Click "Add custom domain"
    - Enter: `status.joeycadieux.dev`
 
-2. **Update DNS:**
-   Add a CNAME record in your DNS provider:
+2. **Update DNS:**   Add a CNAME record in your DNS provider:
    ```
-   CNAME: status.joeycadieux.dev → your-site-name.netlify.app
+   CNAME: status.joeycadieux.dev → website-stats.netlify.app
    ```
 
 3. **Enable HTTPS:**
@@ -122,5 +121,5 @@ Your GitHub Actions can trigger Netlify rebuilds:
 4. **Share your status page URL!**
 
 Your status page will be live at:
-- Netlify URL: `https://your-site-name.netlify.app`
+- Netlify URL: `https://website-stats.netlify.app`
 - Custom URL: `https://status.joeycadieux.dev` (after DNS setup)
