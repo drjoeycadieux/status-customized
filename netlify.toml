@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_FLAGS = "--production=false"
 
 # Redirect rules for SPA
 [[redirects]]
@@ -20,6 +21,10 @@
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    # CORS headers for API calls
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
 
 [[headers]]
   for = "/assets/*"
@@ -29,7 +34,15 @@
 [[headers]]
   for = "/config/*"
   [headers.values]
-    Cache-Control = "public, max-age=300"
+    Cache-Control = "public, max-age=0, no-cache, no-store, must-revalidate"
+    # Ensure JSON files are served with correct content type
+    Content-Type = "application/json"
+
+[[headers]]
+  for = "*.json"
+  [headers.values]
+    Content-Type = "application/json"
+    Cache-Control = "public, max-age=0, no-cache, no-store, must-revalidate"
 
 # Custom domain configuration (update with your actual domain)
 # [[redirects]]

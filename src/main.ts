@@ -61,14 +61,47 @@ class StatusPageApp {
    */
   private async loadConfiguration(): Promise<void> {
     try {
-      // Try to load from config/services.json
-      const response = await fetch('./config/services.json');
+      console.log('🔄 Attempting to load config from ./config/services.json');
+      
+      // Try to load from config/services.json with cache busting
+      const timestamp = new Date().getTime();
+      let response = await fetch(`./config/services.json?t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache'
+      });
+      
+      console.log('📡 Config fetch response:', response.status, response.statusText);
+      
+      // If static file fails, try Netlify function
       if (!response.ok) {
-        console.warn('Could not load external config, using embedded configuration');
-        throw new Error(`Failed to load services configuration: ${response.status}`);
+        console.log('⚠️ Static config failed, trying Netlify function...');
+        response = await fetch(`/.netlify/functions/config?t=${timestamp}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-cache'
+        });
+        console.log('📡 Function fetch response:', response.status, response.statusText);
+      }
+      
+      if (!response.ok) {
+        console.warn('⚠️ Could not load external config, using embedded configuration');
+        throw new Error(`Failed to load services configuration: ${response.status} ${response.statusText}`);
       }
       
       const configData = await response.json();
+      console.log('📋 Raw config data:', configData);
+      
+      // Validate config data
+      if (!configData.services || !Array.isArray(configData.services)) {
+        throw new Error('Invalid config format: services array not found');
+      }
       
       // Convert config format to internal format
       this.config.services = configData.services.map((service: any) => ({
@@ -86,10 +119,12 @@ class StatusPageApp {
       this.monitor = new StatusMonitor(this.config.services, this.config.refreshInterval);
       
       console.log('✅ Configuration loaded successfully:', this.config.services.length, 'services');
+      console.log('🔧 Services:', this.config.services.map(s => ({ id: s.id, name: s.name, url: s.url })));
     } catch (error) {
       console.error('❌ Failed to load external configuration, using embedded config:', error);
       // Use embedded configuration as fallback
       this.config = this.createEmbeddedConfig();
+      console.log('🔧 Using embedded config with services:', this.config.services.map(s => ({ id: s.id, name: s.name, url: s.url })));
     }
   }
 
