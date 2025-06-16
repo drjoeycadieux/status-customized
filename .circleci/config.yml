@@ -206,13 +206,11 @@ workflows:
       #       - security-audit
       #     filters:
       #       branches:
-      #         only: main
-
-  # Scheduled monitoring workflow (runs every 5 minutes)
+      #         only: main  # Scheduled monitoring workflow (runs every 10 minutes)
   scheduled-monitoring:
     triggers:
       - schedule:
-          cron: "*/5 * * * *"  # Every 5 minutes
+          cron: "0,10,20,30,40,50 * * * *"  # Every 10 minutes
           filters:
             branches:
               only: main

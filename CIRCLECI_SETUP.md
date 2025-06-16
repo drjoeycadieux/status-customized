@@ -15,7 +15,7 @@ This project includes a comprehensive CircleCI pipeline for continuous integrati
 
 ### Workflows:
 - **build-test-deploy** - Runs on every push
-- **scheduled-monitoring** - Runs every 5 minutes for service monitoring
+- **scheduled-monitoring** - Runs every 10 minutes for service monitoring
 
 ## 🚀 Setup Instructions
 
@@ -63,7 +63,7 @@ GITHUB_TOKEN=your_github_personal_access_token
 
 ### 3. Enable Scheduled Workflows (Optional)
 
-For automated service monitoring every 5 minutes:
+For automated service monitoring every 10 minutes:
 
 1. Go to CircleCI Project Settings
 2. Navigate to "Advanced Settings"
@@ -84,7 +84,7 @@ For automated service monitoring every 5 minutes:
 - GitHub Pages deployment option
 
 ### 📈 **Service Monitoring:**
-- Scheduled health checks every 5 minutes
+- Scheduled health checks every 10 minutes
 - Updates service status data
 - Automatic status page refresh
 
@@ -98,10 +98,35 @@ For automated service monitoring every 5 minutes:
 ### Modify Monitoring Frequency:
 Edit `.circleci/config.yml` line 135:
 ```yaml
-cron: "*/5 * * * *"  # Every 5 minutes
+cron: "0,10,20,30,40,50 * * * *"  # Every 10 minutes
 # Change to:
-cron: "*/10 * * * *"  # Every 10 minutes
-cron: "0 * * * *"     # Every hour
+cron: "0,15,30,45 * * * *"        # Every 15 minutes
+cron: "0 * * * *"                 # Every hour
+cron: "0 0,6,12,18 * * *"         # Every 6 hours
+```
+
+### Disable Scheduled Monitoring:
+If you prefer manual monitoring only, comment out the scheduled workflow:
+```yaml
+# workflows:
+#   scheduled-monitoring:
+#     triggers:
+#       - schedule:
+#           cron: "0,10,20,30,40,50 * * * *"
+#           filters:
+#             branches:
+#               only: main
+#     jobs:
+#       - monitor-services
+```
+
+### Alternative: GitHub Actions Integration
+You can also use GitHub Actions for scheduled monitoring while keeping CircleCI for deployments:
+```yaml
+# In .github/workflows/status-page.yml
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # GitHub Actions supports */5 syntax
 ```
 
 ### Add More Services:
@@ -154,7 +179,7 @@ const services = [
 
 - ✅ **Automated Testing** - Catch issues before deployment
 - ✅ **Continuous Deployment** - Automatic updates on code changes
-- ✅ **Service Monitoring** - Real-time status updates
+- ✅ **Service Monitoring** - Real-time status updates every 10 minutes
 - ✅ **Security Scanning** - Automated vulnerability detection
 - ✅ **Multiple Deployment Options** - Netlify and GitHub Pages support
 
