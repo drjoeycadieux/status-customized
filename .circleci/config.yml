@@ -1,0 +1,220 @@
+version: 2.1
+
+# Define reusable commands
+commands:
+  restore_dependencies:
+    description: "Restore npm dependencies from cache"
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+
+  save_dependencies:
+    description: "Save npm dependencies to cache"
+    steps:
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+# Define jobs
+jobs:
+  # Install dependencies and run tests
+  build:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/status-page
+    steps:
+      - checkout
+      - restore_dependencies
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - save_dependencies
+      - run:
+          name: Type Check
+          command: npm run type-check
+      - run:
+          name: Build Project
+          command: npm run build
+      - persist_to_workspace:
+          root: ~/status-page
+          paths:
+            - dist
+            - node_modules
+            - package.json
+            - package-lock.json
+
+  # Security audit
+  security-audit:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/status-page
+    steps:
+      - checkout
+      - restore_dependencies
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - run:
+          name: Security Audit
+          command: npm audit --audit-level moderate
+
+  # Service health checks
+  monitor-services:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/status-page
+    steps:
+      - checkout
+      - restore_dependencies
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      - run:
+          name: Run Service Health Checks
+          command: |
+            node -e "
+            const services = [
+              { name: 'Joey Cadieux Portfolio', url: 'https://joeycadieux.dev' },
+              { name: 'Software Foundations', url: 'https://softwarefoundations.cloud' }
+            ];
+            
+            async function checkService(service) {
+              try {
+                const start = Date.now();
+                const response = await fetch(service.url, { 
+                  method: 'HEAD',
+                  signal: AbortSignal.timeout(10000)
+                });
+                const responseTime = Date.now() - start;
+                
+                return {
+                  name: service.name,
+                  url: service.url,
+                  status: response.ok ? 'up' : 'down',
+                  responseTime: responseTime,
+                  statusCode: response.status,
+                  timestamp: new Date().toISOString()
+                };
+              } catch (error) {
+                return {
+                  name: service.name,
+                  url: service.url,
+                  status: 'down',
+                  responseTime: 0,
+                  error: error.message,
+                  timestamp: new Date().toISOString()
+                };
+              }
+            }
+            
+            Promise.all(services.map(checkService)).then(results => {
+              console.log('=== Service Health Check Results ===');
+              results.forEach(result => {
+                const emoji = result.status === 'up' ? '✅' : '❌';
+                console.log(\`\${emoji} \${result.name}: \${result.status} (\${result.responseTime}ms)\`);
+              });
+              
+              // Create status data
+              const fs = require('fs');
+              if (!fs.existsSync('public/data')) {
+                fs.mkdirSync('public/data', { recursive: true });
+              }
+              fs.writeFileSync('public/data/service-status.json', JSON.stringify(results, null, 2));
+              fs.writeFileSync('public/data/last-update.json', JSON.stringify({
+                lastUpdated: new Date().toISOString()
+              }, null, 2));
+              
+              console.log('✅ Status data updated');
+            }).catch(error => {
+              console.error('❌ Health check failed:', error);
+              process.exit(1);
+            });
+            "
+      - persist_to_workspace:
+          root: ~/status-page
+          paths:
+            - public/data
+
+  # Deploy to Netlify
+  deploy-netlify:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/status-page
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/status-page
+      - run:
+          name: Install Netlify CLI
+          command: npm install -g netlify-cli
+      - run:
+          name: Deploy to Netlify
+          command: |
+            if [ "${CIRCLE_BRANCH}" = "main" ]; then
+              netlify deploy --prod --dir=dist --site=${NETLIFY_SITE_ID} --auth=${NETLIFY_AUTH_TOKEN}
+            else
+              netlify deploy --dir=dist --site=${NETLIFY_SITE_ID} --auth=${NETLIFY_AUTH_TOKEN}
+            fi
+
+  # Deploy to GitHub Pages (alternative)
+  deploy-github-pages:
+    docker:
+      - image: cimg/node:18.20
+    working_directory: ~/status-page
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/status-page
+      - run:
+          name: Configure Git
+          command: |
+            git config user.email "circleci@status-page.com"
+            git config user.name "CircleCI"
+      - run:
+          name: Deploy to GitHub Pages
+          command: |
+            npm install -g gh-pages
+            gh-pages -d dist -r https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git
+
+# Define workflows
+workflows:
+  version: 2
+  
+  # Main workflow for all branches
+  build-test-deploy:
+    jobs:
+      - build
+      - security-audit:
+          requires:
+            - build
+      - deploy-netlify:
+          requires:
+            - build
+            - security-audit
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+      # Uncomment for GitHub Pages deployment
+      # - deploy-github-pages:
+      #     requires:
+      #       - build
+      #       - security-audit
+      #     filters:
+      #       branches:
+      #         only: main
+
+  # Scheduled monitoring workflow (runs every 5 minutes)
+  scheduled-monitoring:
+    triggers:
+      - schedule:
+          cron: "*/5 * * * *"  # Every 5 minutes
+          filters:
+            branches:
+              only: main
+    jobs:
+      - monitor-services

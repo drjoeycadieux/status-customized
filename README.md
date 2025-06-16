@@ -1,6 +1,9 @@
 # Service Status Dashboard
 
-A modern, responsive status page built with Vite and TypeScript that monitors service uptime and displays real-time status information with automated GitHub Actions monitoring.
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/yourusername/status-page/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/yourusername/status-page/tree/main)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/your-site-id/deploy-status)](https://app.netlify.com/sites/your-site-name/deploys)
+
+A modern, responsive status page built with Vite and TypeScript that monitors service uptime and displays real-time status information with automated CI/CD monitoring.
 
 ## 🚀 Features
 
@@ -172,6 +175,29 @@ Deploy to Netlify for easy hosting and continuous deployment:
    - Update DNS CNAME to point to Netlify
 
 📖 **Detailed guide:** [NETLIFY_DEPLOY.md](./NETLIFY_DEPLOY.md)
+
+### CircleCI (Professional CI/CD)
+
+For advanced CI/CD with automated monitoring and multiple deployment options:
+
+1. **Connect to CircleCI:**
+   - Sign up at [circleci.com](https://circleci.com)
+   - Connect your GitHub repository
+   - Configuration is already included
+
+2. **Set Environment Variables:**
+   ```
+   NETLIFY_AUTH_TOKEN=your_token
+   NETLIFY_SITE_ID=your_site_id
+   ```
+
+3. **Features:**
+   - Automated testing and security scanning
+   - Service monitoring every 5 minutes
+   - Multiple deployment targets
+   - Preview deployments
+
+📖 **Detailed guide:** [CIRCLECI_SETUP.md](./CIRCLECI_SETUP.md)
 
 ### GitHub Pages
 

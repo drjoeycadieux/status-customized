@@ -12,7 +12,9 @@
     "monitor": "node scripts/monitor.js",
     "deploy": "npm run build && gh-pages -d dist",
     "deploy:netlify": "npm run build",
-    "start": "npm run preview"
+    "deploy:circleci": "npm run build",
+    "start": "npm run preview",
+    "audit-security": "npm audit --audit-level moderate"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
