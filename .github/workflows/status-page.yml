@@ -10,15 +10,26 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
-jobs:
-  # Service Health Checks
+# Add permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:  # Service Health Checks
   monitor-services:
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     
+    # Add permissions for committing status updates
+    permissions:
+      contents: write
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -115,15 +126,22 @@ jobs:
         git add public/data/
         git diff --staged --quiet || git commit -m "Update service status - $(date -u)"
         git push || echo "No changes to push"
-
   # Build and Deploy
   build-and-deploy:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     
+    # Add specific permissions for this job
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -143,10 +161,11 @@ jobs:
       
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
+        force_orphan: true
         
   # Security and Quality Checks
   security-audit:
