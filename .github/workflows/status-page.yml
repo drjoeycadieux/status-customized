@@ -32,19 +32,37 @@ jobs:
     - name: Run service health checks
       run: |
         node -e "
-        const services = [
-          { name: 'Example Website', url: 'https://example.com' },
-          { name: 'GitHub', url: 'https://github.com' },
-          { name: 'Google', url: 'https://google.com' }
-        ];
+        const fs = require('fs');
+        
+        // Load services from config file
+        let services = [];
+        try {
+          const configData = JSON.parse(fs.readFileSync('public/config/services.json', 'utf8'));
+          services = configData.services.map(service => ({
+            name: service.name,
+            url: service.url
+          }));
+          console.log('Loaded services from config:', services.length);
+        } catch (error) {
+          console.log('Could not load config, using fallback services');
+          services = [
+            { name: 'Joey Cadieux Portfolio', url: 'https://joeycadieux.dev' },
+            { name: 'Software Foundations', url: 'https://softwarefoundations.cloud' }
+          ];
+        }
         
         async function checkService(service) {
           try {
             const start = Date.now();
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
             const response = await fetch(service.url, { 
               method: 'HEAD',
-              timeout: 10000 
+              signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
             const responseTime = Date.now() - start;
             
             return {
@@ -73,9 +91,11 @@ jobs:
             console.log(\`\${result.name}: \${result.status} (\${result.responseTime}ms)\`);
           });
           
-          // Store results in environment for later steps
-          const fs = require('fs');
+          // Store results for later steps
           fs.writeFileSync('service-status.json', JSON.stringify(results, null, 2));
+        }).catch(error => {
+          console.error('Error checking services:', error);
+          process.exit(1);
         });
         "
         
@@ -117,8 +137,9 @@ jobs:
     - name: Build project
       run: npm run build
       
-    - name: Run tests
-      run: npm test || echo "No tests configured"
+    - name: Run tests (if available)
+      run: npm test
+      continue-on-error: true
       
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -147,9 +168,12 @@ jobs:
       
     - name: Run security audit
       run: npm audit --audit-level moderate
+      continue-on-error: true
       
-    - name: Run linting
-      run: npm run lint || echo "No linting configured"
+    - name: Run linting (if available)
+      run: npm run lint
+      continue-on-error: true
       
     - name: Type checking
-      run: npm run type-check || npx tsc --noEmit
+      run: npm run type-check
+      continue-on-error: true

@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "echo \"No tests specified\" && exit 0",
     "type-check": "tsc --noEmit",
     "monitor": "node scripts/monitor.js",
     "deploy": "npm run build && gh-pages -d dist",
