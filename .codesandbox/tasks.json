@@ -1,0 +1,68 @@
+{
+  // These tasks will run in order when initializing your CodeSandbox project.
+  "setupTasks": [
+    {
+      "command": "npm install",
+      "name": "Installing Dependencies"
+    }
+  ],
+
+  // These tasks can be run from CodeSandbox. Running one will open a log in the app.
+  "tasks": {
+    "dev": {
+      "name": "dev",
+      "command": "npm run dev",
+      "runAtStart": true
+    },
+    "build": {
+      "name": "build",
+      "command": "npm run build",
+      "runAtStart": false
+    },
+    "preview": {
+      "name": "preview",
+      "command": "npm run preview",
+      "runAtStart": false
+    },
+    "test": {
+      "name": "test",
+      "command": "npm run test",
+      "runAtStart": false
+    },
+    "type-check": {
+      "name": "type-check",
+      "command": "npm run type-check",
+      "runAtStart": false
+    },
+    "monitor": {
+      "name": "monitor",
+      "command": "npm run monitor",
+      "runAtStart": false
+    },
+    "deploy": {
+      "name": "deploy",
+      "command": "npm run deploy",
+      "runAtStart": false
+    },
+    "deploy:netlify": {
+      "name": "deploy:netlify",
+      "command": "npm run deploy:netlify",
+      "runAtStart": false
+    },
+    "deploy:circleci": {
+      "name": "deploy:circleci",
+      "command": "npm run deploy:circleci",
+      "runAtStart": false
+    },
+    "start": {
+      "name": "start",
+      "command": "npm run start",
+      "runAtStart": false
+    },
+    "audit-security": {
+      "name": "audit-security",
+      "command": "npm run audit-security",
+      "runAtStart": false
+    }
+  }
+}
